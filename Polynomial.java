@@ -16,14 +16,7 @@ public class Polynomial {
 
     public Polynomial add(Polynomial other){
     	
-    	int len = 0;
-    	if(polynomial.length <= other.polynomial.length) {
-    		len = other.polynomial.length;
-    	}
-    	else {
-    		len = polynomial.length;
-    	}
-    	
+    	int len = Math.max(polynomial.length, other.polynomial.length);
     	double[] res = new double[len];
  
     	Polynomial output = new Polynomial(polynomial);
