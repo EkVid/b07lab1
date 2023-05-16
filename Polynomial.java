@@ -5,7 +5,7 @@ public class Polynomial {
     public Polynomial(){
     	polynomial = new double[1]; 
     	polynomial[0] = 0;
-    }
+    } 
 
     public Polynomial(double[] array){
         polynomial = new double[array.length];
