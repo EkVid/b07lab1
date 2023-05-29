@@ -1,4 +1,4 @@
 CSCB07 Lab 1 (Intro to Java)
 
 Polynomial.java contains the class "Polynomial", which contains constructors, 
-methods to add, evaluate, check roots. 
+methods to add polynomials, evaluate it, and check roots. 
