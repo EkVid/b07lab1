@@ -1,7 +1,10 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Arrays;
 
 
 
@@ -46,38 +49,70 @@ public class Polynomial {
     			exponent[z] = Integer.parseInt(more[1]);
     			z++;
     		}
-        	
     	}
+    	input.close();
     }
 
     public Polynomial add(Polynomial other){
     	
-    	int len = Math.max(polynomial.length, other.polynomial.length);
-    	double[] res = new double[len];
-    	int[] res_expo = new int[len];
- 
-    	Polynomial output = new Polynomial(polynomial, exponent);
+    	   int len = exponent.length + other.exponent.length;
+           double[] resultPolynomial = new double[len];
+           int[] resultExponent = new int[len];
 
-        for(int i = 0; i < len; i++){
-        	if(i >= other.polynomial.length) {
-        		res[i] = output.polynomial[i];
-        		res_expo[i] = output.exponent[i];
-        	}
-        	else if (i >= output.polynomial.length){
-        		res[i] = other.polynomial[i];
-          		res_expo[i] = other.exponent[i];
-        	}
-            
-        	else {
-        		res[i] = other.polynomial[i] + output.polynomial[i];
-          		res_expo[i] = other.exponent[i] + output.exponent[i];
-        	}
-        }
-        
-        Polynomial result = new Polynomial(res, res_expo);
-        
-        return result;
+           int index = 0;
+           int i = 0;
+           int j = 0;
+
+           while (i < exponent.length && j < other.exponent.length) {
+               if (exponent[i] == other.exponent[j]) {
+                   double sum = polynomial[i] + other.polynomial[j];
+                   if (sum != 0) {  
+                       resultPolynomial[index] = sum;
+                       resultExponent[index] = exponent[i];
+                       index++;
+                   }
+                   i++;
+                   j++;
+               } else if (exponent[i] < other.exponent[j]) {
+                   resultPolynomial[index] = polynomial[i];
+                   resultExponent[index] = exponent[i];
+                   index++;
+                   i++;
+               } else {
+                   resultPolynomial[index] = other.polynomial[j];
+                   resultExponent[index] = other.exponent[j];
+                   index++;
+                   j++;
+               }
+           }
+
+           // Copy remaining terms from the longer polynomial
+           while (i < exponent.length) {
+               resultPolynomial[index] = polynomial[i];
+               resultExponent[index] = exponent[i];
+               index++;
+               i++;
+           }
+
+           while (j < other.exponent.length) {
+               resultPolynomial[index] = other.polynomial[j];
+               resultExponent[index] = other.exponent[j];
+               index++;
+               j++;
+           }
+
+           // Resize the arrays to remove trailing zeros
+           resultPolynomial = Arrays.copyOf(resultPolynomial, index);
+           resultExponent = Arrays.copyOf(resultExponent, index);
+
+           Polynomial sum = new Polynomial();
+           sum.polynomial = resultPolynomial;
+           sum.exponent = resultExponent;
+
+           return sum;
     }
+    
+    
     
     public double evaluate(double x){
         double result = 0;
@@ -95,76 +130,62 @@ public class Polynomial {
     }
     
     public Polynomial multiply(Polynomial pol) {
-    	int len = polynomial.length * pol.polynomial.length;
-    	double[] new_coef = new double[len];
-    	int[] new_expo = new int[len];
-    	    	
-		int x = 0;
-		
-    	for (int i = 0; i < polynomial.length; i++) {
-    		for (int j = 0; j < pol.polynomial.length; j++) {
-    			if (polynomial[i] * pol.polynomial[j] != 0) {
-    				new_coef[x] = polynomial[i] * pol.polynomial[j]; 	
-    				new_expo[x] = exponent[i] + pol.exponent[j];
-    			}
-    			x++;
-    		}
-    	}
-    	// what if coef = 0? Omit?
-    	
+        int len = polynomial.length * pol.polynomial.length;
+        double[] new_coef = new double[len];
+        int[] new_expo = new int[len];
 
-    	int modi_len = 0;
-    	for (int y = 0; y < len; y++) {
-    		if (new_coef[y] != 0) {
-    			modi_len++;
-    		}
-    	}
+        int x = 0;
 
-    	double[] modi_coef = new double[modi_len];
-    	int[] modi_expo = new int[modi_len];
-    	
-    	int h = 0;
-        for(int n = 0; n < len; n++) {
-        	if(new_coef[n] != 0) {
-        		modi_coef[h] = new_coef[n];
-        		modi_expo[h] = new_expo[n];
-        		h++;
-        	}
+        for (int i = 0; i < polynomial.length; i++) {
+            for (int j = 0; j < pol.polynomial.length; j++) {
+                new_coef[x] = polynomial[i] * pol.polynomial[j];
+                new_expo[x] = exponent[i] + pol.exponent[j];
+                x++;
+            }
         }
-        
-        // need to check redundant exponents
-        for(int z = 0; z < modi_len; z++) {
-        	for(int m = z+1; m < modi_len; m++) {
-        		if(modi_expo[z] == modi_expo[m]) {
-        			modi_expo[m] = 0;
-        			modi_coef[z] += modi_coef[m];
-        			modi_coef[m] = 0;
-        		}
-        	}
-        }
-        
+
+        double[] final_coef = new double[len];
+        int[] final_expo = new int[len];
         int final_len = 0;
-        
-        for(int n = 0; n < modi_len; n++){
-        	if(modi_coef[n] != 0) {
-        		final_len++;
-        	}
+
+        for (int i = 0; i < len; i++) {
+            if (new_coef[i] != 0) {
+                boolean hasRedundantExponent = false;
+                for (int j = 0; j < final_len; j++) {
+                    if (new_expo[i] == final_expo[j]) {
+                        final_coef[j] += new_coef[i];
+                        hasRedundantExponent = true;
+                        break;
+                    }
+                }
+                if (!hasRedundantExponent) {
+                    final_coef[final_len] = new_coef[i];
+                    final_expo[final_len] = new_expo[i];
+                    final_len++;
+                }
+            }
         }
-        
-        double[] final_coef = new double[final_len];
-    	int[] final_expo = new int[final_len];
-    	
-    	int k = 0;
-    	for(int t = 0; t < modi_len; t++) {
-    		if(modi_coef[t] != 0) {
-    			final_coef[k] = modi_coef[t];
-    			final_expo[k] = modi_expo[t];
-    			k++;
+
+        final_coef = Arrays.copyOf(final_coef, final_len);
+        final_expo = Arrays.copyOf(final_expo, final_len);
+
+        return new Polynomial(final_coef, final_expo);
+    }
+    
+    public void saveToFile(String file_name) throws FileNotFoundException {
+    	// assume we can overwrite it?
+    	PrintStream ps = new PrintStream(file_name);
+    	String to_write = polynomial[0] + "x" + exponent[0];
+    	for(int i = 1; i < polynomial.length; i++) {
+    			if(polynomial[i] > 0) {
+    				to_write = to_write + ( "+" + polynomial[i] + "x" + exponent[i]);
+    			}
+    			else{
+    				to_write = to_write + (polynomial[i] + "x" + exponent[i]);
+    			}
     		}
-    	}
-    	
-    	Polynomial product = new Polynomial(final_coef, final_expo);
-    	return product;
+    	ps.println(to_write);
+    	ps.close();
     }
 }
 
