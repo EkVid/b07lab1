@@ -1,41 +1,60 @@
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class Driver {
 	public static void main(String [] args) throws IOException {
 		
 		Polynomial p = new Polynomial();
 		System.out.println(p.evaluate(3));
-		double [] c1 = {1,-1};
-		int [] e1 = {1,2};
+		System.out.println("\n");
+		double [] c1 = {1,-1,2,3,4};
+		int [] e1 = {1,2,4,5,1};
 		Polynomial p1 = new Polynomial(c1, e1);	
-		double [] c2 = {1,-1};
-		int [] e2 = {0,1};
+		double [] c2 = {1,-1,5,6};
+		int [] e2 = {0,1,-1,2};
 		Polynomial p2 = new Polynomial(c2, e2);
+		Polynomial p3 = p1.add(p2);
+		if(p3.evaluate(1) == 20) {
+			System.out.println("The value outputed is correct");
+		}
+		else {
+			System.out.println("The value outputed is wrong, unless you modified the polynomial");
+		}	
 
 		System.out.println("\n");
 		
-		Polynomial x = p1.multiply(p2);
+		double [] d1 = {1,-1};
+		int [] f1 = {1,2};
+		Polynomial m1 = new Polynomial(d1, f1);	
+		double [] d2 = {1,3};
+		int [] f2 = {0,1};
+		Polynomial m2 = new Polynomial(d2, f2);
 		
-//		System.out.println("expo len = " + x.exponent.length);
-//		System.out.println("\n");
-//		System.out.println("coef len = " + x.polynomial.length);
-
-
-//		for (int i = 0; i < x.polynomial.length; i++) {
-//			System.out.println(x.polynomial[i]);
-//		}
-//		System.out.println("\n");
-//		
-//		for (int i = 0; i < x.exponent.length; i++) {
-//			System.out.println(x.exponent[i]);
-//		}
-		File f = new File("new_file");
+		Polynomial x = m1.multiply(m2);
+		
+		if(x.evaluate(2) == -14) {
+			System.out.println("The value outputed is correct");
+		}
+		else {
+			System.out.println("The value outputed is wrong, unless you modified the polynomial");
+		}	
+		
+		System.out.println("\n");
+		
+		
+		// test whether reads the correct polynomial from the file
+		File f = new File("test_file");
 		Polynomial m = new Polynomial(f);
-		System.out.println(Arrays.toString(m.polynomial));
-		System.out.println(Arrays.toString(m.exponent));
+		for (int i = 0; i < m.polynomial.length; i++) {
+			System.out.println(m.polynomial[i]);
+		}
+		System.out.println("\n");
+		for (int i = 0; i < m.polynomial.length; i++) {
+			System.out.println(m.exponent[i]);
+		}
 		
+		// test if the file has the correct output
+		x.saveToFile("output");
 		
 	}
 
