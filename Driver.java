@@ -45,13 +45,12 @@ public class Driver {
 		// test whether reads the correct polynomial from the file
 		File f = new File("test_file");
 		Polynomial m = new Polynomial(f);
-		for (int i = 0; i < m.polynomial.length; i++) {
-			System.out.println(m.polynomial[i]);
+		if(m.evaluate(1) == 16) {
+			System.out.println("The value outputed is correct");
 		}
-		System.out.println("\n");
-		for (int i = 0; i < m.polynomial.length; i++) {
-			System.out.println(m.exponent[i]);
-		}
+		else {
+			System.out.println("The value outputed is wrong, unless you modified the polynomial");
+		}	
 		
 		// test if the file has the correct output
 		x.saveToFile("output");
